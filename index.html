@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Deacon's Quest — Learning the Duties of the Aaronic Priesthood</title>
+<style>
+  :root{
+    --gold:#e6b54a; --gold-deep:#c8902a; --navy:#10213f; --navy-2:#1b3157;
+    --sky:#4f86c6; --cream:#f7f1e1; --green:#3da35d; --red:#d9534f;
+    --shadow:0 12px 40px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(circle at 50% -10%, #2a4a82 0%, var(--navy) 55%, #0a1530 100%);
+    color:var(--cream); min-height:100vh; overflow-x:hidden;
+    display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  #app{width:min(1100px,100%);}
+  .screen{display:none; animation:fade .5s ease;}
+  .screen.active{display:block;}
+  @keyframes fade{from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;}}
+
+  .card{
+    background:linear-gradient(180deg, rgba(27,49,87,.95), rgba(16,33,63,.97));
+    border:2px solid rgba(230,181,74,.45); border-radius:24px;
+    box-shadow:var(--shadow); padding:40px clamp(20px,4vw,56px);
+  }
+
+  /* ---------- TITLE ---------- */
+  .crest{font-size:clamp(56px,9vw,96px); line-height:1; filter:drop-shadow(0 6px 10px rgba(0,0,0,.4));}
+  h1{font-size:clamp(34px,6vw,64px); font-weight:800; letter-spacing:.5px; margin:10px 0 6px;
+     background:linear-gradient(180deg,#fff,var(--gold)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .subtitle{font-size:clamp(16px,2.4vw,24px); color:#cdddf3; margin-bottom:6px; font-weight:600;}
+  .tag{font-size:clamp(13px,1.8vw,17px); color:#9fb6d6; margin-bottom:28px;}
+  .intro-text{font-size:clamp(15px,2vw,20px); line-height:1.6; color:#dce7f6; max-width:760px; margin:0 auto 30px;}
+
+  .btn{
+    cursor:pointer; border:none; font-family:inherit; font-weight:800;
+    font-size:clamp(17px,2.3vw,23px); padding:16px 38px; border-radius:16px;
+    background:linear-gradient(180deg,var(--gold),var(--gold-deep)); color:#3a2300;
+    box-shadow:0 6px 0 #8d6312, 0 10px 24px rgba(0,0,0,.35); transition:transform .08s, box-shadow .08s;
+  }
+  .btn:hover{transform:translateY(-2px);}
+  .btn:active{transform:translateY(4px); box-shadow:0 2px 0 #8d6312, 0 6px 14px rgba(0,0,0,.35);}
+  .btn.secondary{background:linear-gradient(180deg,#4f86c6,#34588a); color:#fff; box-shadow:0 6px 0 #203a5e,0 10px 24px rgba(0,0,0,.35);}
+  .btn.secondary:active{box-shadow:0 2px 0 #203a5e,0 6px 14px rgba(0,0,0,.35);}
+
+  .center{text-align:center;}
+  .mt{margin-top:26px;} .mt-s{margin-top:14px;}
+
+  .howto{display:flex; gap:18px; flex-wrap:wrap; justify-content:center; margin:8px auto 30px; max-width:820px;}
+  .howto .pill{background:rgba(79,134,198,.18); border:1px solid rgba(120,170,230,.35);
+    border-radius:14px; padding:14px 18px; font-size:clamp(13px,1.7vw,16px); flex:1 1 220px; min-width:200px;}
+  .howto .pill b{color:var(--gold); display:block; font-size:1.05em; margin-bottom:4px;}
+
+  /* ---------- HUD ---------- */
+  .hud{display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:18px; flex-wrap:wrap;}
+  .hud .stat{background:rgba(10,21,48,.6); border:1px solid rgba(230,181,74,.35);
+    border-radius:14px; padding:10px 18px; font-weight:800; font-size:clamp(15px,2vw,20px);}
+  .hud .stat span{color:var(--gold);}
+  .progress{flex:1 1 200px; height:16px; background:rgba(255,255,255,.12); border-radius:10px; overflow:hidden; min-width:160px;}
+  .progress > i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--gold),var(--green)); transition:width .5s;}
+
+  /* ---------- MAP ---------- */
+  .map-title{font-size:clamp(24px,4vw,40px); font-weight:800; text-align:center; margin-bottom:6px;}
+  .map-sub{text-align:center; color:#aebfda; margin-bottom:26px; font-size:clamp(14px,1.9vw,18px);}
+  .missions{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:18px;}
+  .mnode{position:relative; text-align:center; cursor:pointer; border-radius:20px; padding:24px 16px;
+    background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+    border:2px solid rgba(255,255,255,.12); transition:transform .12s, border-color .2s, background .2s;}
+  .mnode:hover{transform:translateY(-4px); border-color:var(--gold);}
+  .mnode .mi{font-size:54px; line-height:1; filter:drop-shadow(0 4px 6px rgba(0,0,0,.4));}
+  .mnode .mt2{font-weight:800; font-size:clamp(15px,1.9vw,19px); margin-top:10px;}
+  .mnode .num{position:absolute; top:10px; left:14px; font-weight:800; color:var(--gold); opacity:.8;}
+  .mnode .done{position:absolute; top:8px; right:12px; font-size:26px; display:none;}
+  .mnode.complete{border-color:var(--green); background:linear-gradient(180deg,rgba(61,163,93,.22),rgba(61,163,93,.06));}
+  .mnode.complete .done{display:block;}
+  .mnode.complete:hover{border-color:var(--green);}
+
+  /* ---------- MISSION ---------- */
+  .mhead{display:flex; align-items:center; gap:16px; margin-bottom:18px;}
+  .mhead .big{font-size:52px;}
+  .mhead h2{font-size:clamp(22px,3.6vw,36px); font-weight:800; color:#fff;}
+  .story{font-size:clamp(16px,2.1vw,22px); line-height:1.6; background:rgba(10,21,48,.5);
+    border-left:5px solid var(--gold); border-radius:0 14px 14px 0; padding:18px 22px; margin-bottom:22px; color:#e7eefb;}
+  .q{font-size:clamp(18px,2.5vw,26px); font-weight:800; margin-bottom:18px; color:#fff;}
+  .options{display:grid; gap:14px;}
+  .opt{display:flex; align-items:center; gap:14px; text-align:left; cursor:pointer;
+    background:rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.15); border-radius:16px;
+    padding:16px 20px; font-size:clamp(15px,2vw,21px); font-weight:600; color:#eaf1fc; transition:.15s; font-family:inherit;}
+  .opt:hover:not(.locked){background:rgba(79,134,198,.25); border-color:var(--sky);}
+  .opt .key{flex:0 0 auto; width:38px; height:38px; border-radius:10px; background:rgba(230,181,74,.25);
+    color:var(--gold); font-weight:800; display:grid; place-items:center; font-size:18px;}
+  .opt.correct{background:rgba(61,163,93,.3); border-color:var(--green); color:#fff;}
+  .opt.wrong{background:rgba(217,83,79,.28); border-color:var(--red);}
+  .opt.locked{cursor:default;}
+
+  .feedback{margin-top:22px; border-radius:16px; padding:20px 22px; display:none; animation:fade .35s;}
+  .feedback.show{display:block;}
+  .feedback.good{background:rgba(61,163,93,.18); border:2px solid var(--green);}
+  .feedback.try{background:rgba(230,181,74,.15); border:2px solid var(--gold);}
+  .feedback .ftitle{font-size:clamp(18px,2.4vw,24px); font-weight:800; margin-bottom:8px;}
+  .feedback .ftext{font-size:clamp(15px,2vw,20px); line-height:1.55; color:#eaf1fc;}
+  .scripture{margin-top:14px; font-style:italic; color:#ffe9b8; background:rgba(0,0,0,.25);
+    border-radius:12px; padding:12px 16px; font-size:clamp(14px,1.9vw,19px);}
+  .scripture b{font-style:normal; color:var(--gold); display:block; margin-top:6px;}
+
+  /* ---------- SORT BONUS ---------- */
+  .sort-card{font-size:clamp(18px,2.6vw,28px); font-weight:800; text-align:center; background:rgba(255,255,255,.07);
+    border:2px solid rgba(230,181,74,.4); border-radius:18px; padding:34px 20px; margin:10px 0 22px; min-height:120px; display:grid; place-items:center;}
+  .sort-btns{display:flex; gap:18px; justify-content:center; flex-wrap:wrap;}
+  .sort-btns .btn{flex:1 1 200px; max-width:300px;}
+  .sort-progress{text-align:center; color:#aebfda; margin-bottom:10px; font-weight:700;}
+
+  /* ---------- CERTIFICATE ---------- */
+  .cert{background:linear-gradient(180deg,#fdf8ec,#f2e7c8); color:#2a2208; border-radius:20px;
+    border:6px double var(--gold-deep); padding:36px clamp(18px,4vw,54px); text-align:center; box-shadow:var(--shadow);}
+  .cert h2{font-size:clamp(26px,4.5vw,44px); color:#7a5a12; font-weight:800; margin-bottom:4px;}
+  .cert .ribbon{font-size:64px;}
+  .cert .line{font-size:clamp(15px,2vw,20px); margin:8px 0; color:#43370f;}
+  .cert .score-big{font-size:clamp(40px,8vw,72px); font-weight:900; color:var(--gold-deep); margin:6px 0;}
+  .cert .rank{font-size:clamp(20px,3vw,30px); font-weight:800; color:#5e4a10;}
+  .badges{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:18px 0;}
+  .badges .b{background:#fff7e3; border:2px solid var(--gold-deep); border-radius:12px; padding:8px 12px; font-weight:700; font-size:14px; color:#5e4a10;}
+  .name-input{font-family:inherit; font-size:20px; padding:12px 16px; border-radius:12px; border:2px solid var(--gold-deep);
+    width:min(420px,90%); text-align:center; margin:6px 0 4px; background:#fffdf6; color:#2a2208;}
+
+  .scripture-list{background:rgba(10,21,48,.5); border-radius:14px; padding:18px 22px; margin-top:8px; text-align:left;}
+  .scripture-list h3{color:var(--gold); margin-bottom:10px;}
+  .scripture-list p{margin:8px 0; line-height:1.5; font-size:clamp(14px,1.8vw,17px); color:#e7eefb;}
+
+  /* confetti canvas */
+  #confetti{position:fixed; inset:0; pointer-events:none; z-index:50;}
+
+  .footer-note{text-align:center; color:#7e91b3; font-size:13px; margin-top:18px;}
+  .toast{position:fixed; top:18px; left:50%; transform:translateX(-50%); background:var(--gold); color:#3a2300;
+    font-weight:800; padding:12px 22px; border-radius:14px; box-shadow:var(--shadow); z-index:60; opacity:0; transition:.3s; font-size:18px;}
+  .toast.show{opacity:1;}
+  .nav-row{display:flex; justify-content:space-between; gap:12px; margin-top:24px; flex-wrap:wrap;}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<div class="toast" id="toast"></div>
+<div id="app">
+
+  <!-- TITLE -->
+  <section class="screen active" id="screen-title">
+    <div class="card center">
+      <div class="crest">⛪🛡️</div>
+      <h1>The Deacon's Quest</h1>
+      <div class="subtitle">Discover the Duties of the Aaronic Priesthood</div>
+      <div class="tag">For young men ages 12–13 · The Church of Jesus Christ of Latter-day Saints</div>
+      <p class="intro-text">
+        A new deacon has just been ordained — and the Lord has work for him to do!
+        Travel through your ward, complete real duties of a deacon, earn badges, and
+        learn the scriptures behind each calling. Ready to serve?
+      </p>
+      <div class="howto">
+        <div class="pill"><b>🎯 Choose</b>Tap an answer or press number keys 1–4.</div>
+        <div class="pill"><b>⭐ Earn</b>Score points and collect a badge for every duty.</div>
+        <div class="pill"><b>📜 Learn</b>See the scripture behind each duty as you go.</div>
+      </div>
+      <button class="btn" onclick="Game.start()">Begin the Quest ▶</button>
+      <div class="footer-note">Great for quorum class — project it on the screen and play as a team.</div>
+    </div>
+  </section>
+
+  <!-- MAP -->
+  <section class="screen" id="screen-map">
+    <div class="card">
+      <div class="hud">
+        <div class="stat">⭐ Score: <span id="hud-score">0</span></div>
+        <div class="progress"><i id="hud-bar"></i></div>
+        <div class="stat">🛡️ Duties: <span id="hud-done">0</span>/<span id="hud-total">7</span></div>
+      </div>
+      <div class="map-title">Your Quest Map</div>
+      <div class="map-sub">Choose a duty to begin. Finish all seven to complete the quest!</div>
+      <div class="missions" id="missions"></div>
+      <div class="center mt" id="finish-wrap" style="display:none;">
+        <button class="btn" onclick="Game.showCertificate()">🏆 Complete Your Quest</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- MISSION -->
+  <section class="screen" id="screen-mission">
+    <div class="card">
+      <div class="hud">
+        <div class="stat">⭐ <span id="m-score">0</span></div>
+        <div class="progress"><i id="m-bar"></i></div>
+        <button class="btn secondary" style="padding:10px 20px; font-size:16px; box-shadow:0 4px 0 #203a5e;" onclick="Game.toMap()">🗺️ Map</button>
+      </div>
+      <div id="mission-body"></div>
+    </div>
+  </section>
+
+  <!-- CERTIFICATE -->
+  <section class="screen" id="screen-cert">
+    <div class="cert">
+      <div class="ribbon">🏅</div>
+      <h2>Certificate of Faithful Service</h2>
+      <div class="line">This certifies that</div>
+      <input class="name-input" id="cert-name" placeholder="Type your name here" maxlength="32" oninput="Game.renderName()">
+      <div class="line">has learned and practiced the duties of a deacon in the Aaronic Priesthood.</div>
+      <div class="score-big" id="cert-score">0</div>
+      <div class="rank" id="cert-rank">—</div>
+      <div class="badges" id="cert-badges"></div>
+      <div class="line" id="cert-msg" style="font-weight:700;"></div>
+    </div>
+    <div class="scripture-list">
+      <h3>📜 Scriptures a Deacon Should Know</h3>
+      <div id="scripture-recap"></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn secondary" onclick="Game.print()">🖨️ Print Certificate</button>
+      <button class="btn" onclick="Game.restart()">🔄 Play Again</button>
+    </div>
+    <div class="footer-note">
+      Sources: Doctrine and Covenants 20, 84, 107; “Your Aaronic Priesthood Duties,” New Era, June 2012; ChurchofJesusChrist.org.
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* =========================================================
+   THE DEACON'S QUEST — game logic
+   Content drawn from official sources on a deacon's duties:
+   D&C 20:46-59, D&C 84:111, D&C 107:68; New Era June 2012.
+   ========================================================= */
+
+const MISSIONS = [
+  {
+    id:"sacrament", icon:"🍞", title:"Pass the Sacrament", badge:"Sacrament Server",
+    story:"It's Sunday morning. After the priests bless the bread and water, the bishop nods to you. As a deacon, one of your most sacred duties is to <b>pass the sacrament</b> to the members of the congregation.",
+    q:"How should you act while passing the sacrament?",
+    options:[
+      {t:"Dress neatly (a white shirt is best), walk reverently, and serve as a representative of the Lord.", correct:true},
+      {t:"Rush through the rows as fast as you can so it's over quickly.", correct:false},
+      {t:"Whisper jokes with the deacon next to you while you wait.", correct:false},
+      {t:"Skip the back rows if you're getting tired.", correct:false},
+    ],
+    good:"Exactly! When you pass the sacrament you act as a representative of the Savior. Dressing and acting reverently helps everyone remember Jesus Christ and the covenants they made at baptism.",
+    try:"Not quite. Passing the sacrament is a sacred privilege — you represent the Savior. Deacons dress neatly, move reverently, and make sure every person is served.",
+    scripture:"“…the office of a deacon… are to be appointed to watch over the church.” Deacons help in the sacred ordinance of the sacrament by passing it to the members.",
+    ref:"Doctrine and Covenants 20:57–59"
+  },
+  {
+    id:"fastoffering", icon:"🧺", title:"Collect Fast Offerings", badge:"Fast-Offering Gatherer",
+    story:"It's Fast Sunday. The bishop hands you a clipboard and asks you to go with a companion to gather <b>fast offerings</b> — the money members donate after fasting two meals.",
+    q:"What are fast offerings used for?",
+    options:[
+      {t:"To feed, clothe, and care for people who are poor or in need.", correct:true},
+      {t:"To buy new basketballs for the gym.", correct:false},
+      {t:"To pay the deacons for collecting them.", correct:false},
+      {t:"To decorate the chapel for holidays.", correct:false},
+    ],
+    good:"Right! By gathering fast offerings you help the bishop care for the poor and the needy. It's a way deacons assist the bishop in 'temporal things.'",
+    try:"Look again — fast offerings care for the poor and needy. When you collect them, you're helping the bishop look after people who are struggling.",
+    scripture:"Deacons assist the bishop in “administering… temporal things,” which includes gathering fast offerings to help the poor and needy.",
+    ref:"Doctrine and Covenants 107:68"
+  },
+  {
+    id:"needy", icon:"🤝", title:"Care for the Poor & Needy", badge:"Servant's Heart",
+    story:"Brother Reyes, an older member, just had surgery and can't mow his lawn or take out his trash. Your quorum is looking for ways to help people in the ward.",
+    q:"As a deacon, what's the best response?",
+    options:[
+      {t:"Organize the quorum to mow his lawn and help with chores he can't do.", correct:true},
+      {t:"Decide it's not your job since you're only a deacon.", correct:false},
+      {t:"Wait until an adult is assigned to do it.", correct:false},
+      {t:"Post about it online instead of doing anything.", correct:false},
+    ],
+    good:"Wonderful! Caring for those in need is at the heart of priesthood service. Even small acts of service — like yard work or a kind visit — lift those who are struggling.",
+    try:"Think again — a deacon is called to serve. Quietly helping someone who can't help themselves is exactly the kind of service the Lord asks of you.",
+    scripture:"“When ye are in the service of your fellow beings ye are only in the service of your God.” Deacons help care for those in need.",
+    ref:"Mosiah 2:17"
+  },
+  {
+    id:"watch", icon:"💬", title:"Watch Over the Church", badge:"Friend & Fellowshipper",
+    story:"A boy your age, Tyler, just moved into the ward but hasn't come to church yet. Also, your friend Marcus missed quorum last Sunday and seemed discouraged.",
+    q:"How can you 'watch over the church' as a deacon?",
+    options:[
+      {t:"Reach out to Tyler and Marcus — invite them, befriend them, and help them feel welcome.", correct:true},
+      {t:"Ignore them; they'll show up if they want to.", correct:false},
+      {t:"Tell everyone the reasons Marcus might be struggling.", correct:false},
+      {t:"Only talk to the friends you already have.", correct:false},
+    ],
+    good:"Yes! Deacons are appointed to 'watch over the church' — that means fellowshipping others, inviting friends, and helping every young man feel he belongs.",
+    try:"Not quite. To 'watch over the church' means caring for people: inviting, welcoming, and strengthening others — not leaving anyone out.",
+    scripture:"Deacons are “to warn, expound, exhort, and teach, and invite all to come unto Christ,” and are “appointed to watch over the church.”",
+    ref:"Doctrine and Covenants 20:59; 84:111"
+  },
+  {
+    id:"meetinghouse", icon:"🧹", title:"Care for the Meetinghouse & Grounds", badge:"Caretaker of the Lord's House",
+    story:"After a ward activity, the cultural hall is full of stacked chairs, and there's trash scattered on the lawn outside the meetinghouse.",
+    q:"What should a deacon do?",
+    options:[
+      {t:"Pitch in to put away chairs and pick up trash to keep the Lord's house clean.", correct:true},
+      {t:"Leave it — the janitor gets paid to clean everything.", correct:false},
+      {t:"Only help if someone gives you a reward.", correct:false},
+      {t:"Walk past it; it's not really your problem.", correct:false},
+    ],
+    good:"Great! Deacons help care for the meetinghouse and grounds. Keeping the Lord's house clean and orderly is a real and meaningful priesthood duty.",
+    try:"Look again — caring for the meetinghouse and grounds is an actual duty of a deacon. Pitching in keeps the Lord's house a reverent place.",
+    scripture:"Deacons assist the bishop with temporal matters, which includes helping to care for the meetinghouse and grounds.",
+    ref:"Doctrine and Covenants 107:68"
+  },
+  {
+    id:"messenger", icon:"✉️", title:"Be the Bishop's Messenger", badge:"Trusted Messenger",
+    story:"During sacrament meeting, the bishop quietly signals you. He needs a message taken to the Primary president and a hymnbook brought to the stand.",
+    q:"What kind of messenger should a deacon be?",
+    options:[
+      {t:"Quiet, reverent, and dependable — handling the task quickly and respectfully.", correct:true},
+      {t:"Loud and silly so everyone notices you.", correct:false},
+      {t:"Slow and distracted, stopping to play on the way.", correct:false},
+      {t:"Refuse — running errands is beneath a priesthood holder.", correct:false},
+    ],
+    good:"Perfect! Acting as a messenger for the bishop is a trusted duty. Being reverent, quick, and dependable shows you honor your priesthood.",
+    try:"Think again — serving as the bishop's messenger means being reverent, reliable, and quick. It's a trusted priesthood responsibility.",
+    scripture:"Deacons assist the bishop and may serve as messengers, helping the Lord's work move forward.",
+    ref:"Doctrine and Covenants 84:111"
+  },
+  {
+    id:"example", icon:"🌟", title:"Set the Example", badge:"Light to Others", isSort:true,
+    story:"A deacon leads by example and supports his quorum. Time for a lightning round! Decide which of these really are duties or qualities of a faithful deacon.",
+    sort:[
+      {t:"Pass the sacrament reverently", duty:true},
+      {t:"Collect fast offerings for the poor", duty:true},
+      {t:"Skip church whenever you feel like it", duty:false},
+      {t:"Welcome and invite other young men", duty:true},
+      {t:"Help care for the meetinghouse", duty:true},
+      {t:"Bless and administer the sacrament alone", duty:false},
+      {t:"Support your quorum president", duty:true},
+      {t:"Keep yourself worthy and set a good example", duty:true},
+    ],
+    good:"You did it! A faithful deacon serves, invites, helps, and sets a worthy example — supporting his quorum and the whole church.",
+    scripture:"“Let no man despise thy youth; but be thou an example of the believers, in word, in conversation, in charity, in spirit, in faith, in purity.”",
+    ref:"1 Timothy 4:12",
+    note:"(Note: deacons pass the sacrament, but they do not bless or administer it — that is the duty of a priest.)"
+  },
+];
+
+const Game = {
+  score:0, done:{}, current:null, answered:false,
+  sortIndex:0, sortCorrect:0,
+
+  start(){ this.show("screen-map"); this.renderMap(); this.ping(440,.0001); },
+
+  show(id){
+    document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    window.scrollTo({top:0,behavior:"smooth"});
+  },
+
+  renderMap(){
+    document.getElementById("hud-total").textContent = MISSIONS.length;
+    const wrap = document.getElementById("missions"); wrap.innerHTML="";
+    MISSIONS.forEach((m,i)=>{
+      const d = document.createElement("div");
+      d.className = "mnode" + (this.done[m.id] ? " complete":"");
+      d.innerHTML = `<div class="num">${i+1}</div><div class="done">✅</div>
+        <div class="mi">${m.icon}</div><div class="mt2">${m.title}</div>`;
+      d.onclick = ()=>this.openMission(m.id);
+      wrap.appendChild(d);
+    });
+    this.updateHud();
+    const allDone = MISSIONS.every(m=>this.done[m.id]);
+    document.getElementById("finish-wrap").style.display = allDone ? "block":"none";
+  },
+
+  updateHud(){
+    const done = Object.keys(this.done).length;
+    const pct = Math.round(done/MISSIONS.length*100);
+    document.getElementById("hud-score").textContent = this.score;
+    document.getElementById("hud-done").textContent = done;
+    document.getElementById("hud-bar").style.width = pct+"%";
+    document.getElementById("m-score").textContent = this.score;
+    document.getElementById("m-bar").style.width = pct+"%";
+  },
+
+  openMission(id){
+    const m = MISSIONS.find(x=>x.id===id);
+    this.current = m; this.answered=false;
+    this.show("screen-mission");
+    this.updateHud();
+    if(m.isSort){ this.renderSort(m); } else { this.renderChoice(m); }
+  },
+
+  shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+    return arr;
+  },
+
+  renderChoice(m){
+    this.shuffle(m.options);   // randomize which position holds the correct answer
+    const body = document.getElementById("mission-body");
+    body.innerHTML = `
+      <div class="mhead"><div class="big">${m.icon}</div><h2>${m.title}</h2></div>
+      <div class="story">${m.story}</div>
+      <div class="q">${m.q}</div>
+      <div class="options" id="opts"></div>
+      <div class="feedback" id="fb"></div>
+      <div class="nav-row" id="navrow"></div>`;
+    const opts = document.getElementById("opts");
+    m.options.forEach((o,i)=>{
+      const b = document.createElement("button");
+      b.className="opt"; b.dataset.i=i;
+      b.innerHTML = `<span class="key">${i+1}</span><span>${o.t}</span>`;
+      b.onclick = ()=>this.answer(i);
+      opts.appendChild(b);
+    });
+  },
+
+  answer(i){
+    if(this.answered) return;
+    const m = this.current; const o = m.options[i];
+    const btns = document.querySelectorAll("#opts .opt");
+    if(o.correct){
+      this.answered = true;
+      btns.forEach(b=>b.classList.add("locked"));
+      btns[i].classList.add("correct");
+      const first = !this.done[m.id];
+      const pts = first ? 150 : 50;
+      this.score += pts;
+      this.done[m.id] = true;
+      this.updateHud();
+      this.ping(660,.08); this.ping(880,.08,120);
+      this.confetti();
+      this.toast(`+${pts} points!`);
+      this.showFeedback(true);
+    } else {
+      btns[i].classList.add("wrong","locked");
+      this.ping(180,.12);
+      const fb = document.getElementById("fb");
+      fb.className="feedback try show";
+      fb.innerHTML = `<div class="ftitle">🤔 Try again!</div><div class="ftext">${m.try}</div>`;
+    }
+  },
+
+  showFeedback(good){
+    const m = this.current;
+    const fb = document.getElementById("fb");
+    fb.className="feedback good show";
+    fb.innerHTML = `<div class="ftitle">✅ ${m.badge} badge earned!</div>
+      <div class="ftext">${m.good}</div>
+      <div class="scripture">${m.scripture}<b>${m.ref}</b></div>`;
+    this.addNav();
+  },
+
+  addNav(){
+    const nav = document.getElementById("navrow");
+    const allDone = MISSIONS.every(x=>this.done[x.id]);
+    nav.innerHTML = `<button class="btn secondary" onclick="Game.toMap()">🗺️ Back to Map</button>
+      ${ allDone
+          ? `<button class="btn" onclick="Game.showCertificate()">🏆 Finish Quest</button>`
+          : `<button class="btn" onclick="Game.nextMission()">Next Duty ▶</button>` }`;
+  },
+
+  nextMission(){
+    const idx = MISSIONS.findIndex(m=>!this.done[m.id]);
+    if(idx>=0){ this.openMission(MISSIONS[idx].id); } else { this.toMap(); }
+  },
+
+  /* ---- SORT BONUS ---- */
+  renderSort(m){
+    this.sortIndex=0; this.sortCorrect=0; this.answered=false;
+    const body = document.getElementById("mission-body");
+    body.innerHTML = `
+      <div class="mhead"><div class="big">${m.icon}</div><h2>${m.title}</h2></div>
+      <div class="story">${m.story}</div>
+      <div class="sort-progress" id="sortprog"></div>
+      <div class="sort-card" id="sortcard"></div>
+      <div class="sort-btns">
+        <button class="btn" onclick="Game.sortAnswer(true)">✅ Yes, it's a duty</button>
+        <button class="btn secondary" onclick="Game.sortAnswer(false)">❌ Not a duty</button>
+      </div>
+      <div class="feedback" id="fb"></div>
+      <div class="nav-row" id="navrow"></div>`;
+    this.showSortCard();
+  },
+
+  showSortCard(){
+    const m = this.current;
+    if(this.sortIndex >= m.sort.length){ this.finishSort(); return; }
+    document.getElementById("sortprog").textContent =
+      `Card ${this.sortIndex+1} of ${m.sort.length}  ·  Correct: ${this.sortCorrect}`;
+    document.getElementById("sortcard").textContent = m.sort[this.sortIndex].t;
+  },
+
+  sortAnswer(choice){
+    const m = this.current;
+    const item = m.sort[this.sortIndex];
+    const card = document.getElementById("sortcard");
+    if(choice === item.duty){
+      this.sortCorrect++;
+      this.score += 30; this.updateHud();
+      this.ping(720,.06);
+      card.style.borderColor = "#3da35d";
+      this.toast("Correct! +30");
+    } else {
+      this.ping(180,.1);
+      card.style.borderColor = "#d9534f";
+      this.toast(item.duty ? "That one IS a duty" : "That's not a duty");
+    }
+    this.sortIndex++;
+    setTimeout(()=>{ card.style.borderColor=""; this.showSortCard(); }, 550);
+  },
+
+  finishSort(){
+    const m = this.current;
+    if(!this.done[m.id]){ this.score += 50; this.done[m.id]=true; }
+    this.updateHud();
+    this.confetti();
+    document.getElementById("sortprog").textContent =
+      `You got ${this.sortCorrect} of ${m.sort.length} right!`;
+    document.getElementById("sortcard").innerHTML = "🌟";
+    const fb = document.getElementById("fb");
+    fb.className="feedback good show";
+    fb.innerHTML = `<div class="ftitle">✅ ${m.badge} badge earned!</div>
+      <div class="ftext">${m.good} ${m.note?('<br><br><i>'+m.note+'</i>'):''}</div>
+      <div class="scripture">${m.scripture}<b>${m.ref}</b></div>`;
+    this.addNav();
+  },
+
+  toMap(){ this.show("screen-map"); this.renderMap(); },
+
+  /* ---- CERTIFICATE ---- */
+  showCertificate(){
+    this.show("screen-cert");
+    document.getElementById("cert-score").textContent = this.score;
+    const rank = this.score>=900 ? "Rank: Faithful Deacon ⭐⭐⭐"
+               : this.score>=650 ? "Rank: Devoted Deacon ⭐⭐"
+               : "Rank: Rising Deacon ⭐";
+    document.getElementById("cert-rank").textContent = rank;
+    const badges = document.getElementById("cert-badges"); badges.innerHTML="";
+    MISSIONS.forEach(m=>{
+      if(this.done[m.id]){
+        const b=document.createElement("div"); b.className="b";
+        b.textContent = m.icon+" "+m.badge; badges.appendChild(b);
+      }
+    });
+    document.getElementById("cert-msg").textContent =
+      "Well done, faithful servant. Now go and live these duties!";
+    const recap = document.getElementById("scripture-recap"); recap.innerHTML="";
+    MISSIONS.forEach(m=>{
+      const p=document.createElement("p");
+      p.innerHTML = `<b style="color:#ffe9b8">${m.icon} ${m.title}:</b> ${m.ref}`;
+      recap.appendChild(p);
+    });
+    this.renderName(); this.bigConfetti();
+  },
+
+  renderName(){
+    const v = document.getElementById("cert-name").value.trim();
+    document.getElementById("cert-name").value = document.getElementById("cert-name").value;
+  },
+
+  print(){ window.print(); },
+  restart(){ this.score=0; this.done={}; this.show("screen-title"); },
+
+  /* ---- effects ---- */
+  toast(msg){
+    const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
+    clearTimeout(this._tt); this._tt=setTimeout(()=>t.classList.remove("show"),1200);
+  },
+  ping(freq,vol=.06,delay=0){
+    try{
+      const Ctx = window.AudioContext||window.webkitAudioContext; if(!Ctx) return;
+      this._ac = this._ac || new Ctx();
+      const ac=this._ac;
+      setTimeout(()=>{
+        const o=ac.createOscillator(), g=ac.createGain();
+        o.type="sine"; o.frequency.value=freq; o.connect(g); g.connect(ac.destination);
+        g.gain.setValueAtTime(vol,ac.currentTime);
+        g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+.25);
+        o.start(); o.stop(ac.currentTime+.26);
+      },delay);
+    }catch(e){}
+  },
+
+  confetti(n=60){ this._confetti(n); },
+  bigConfetti(){ this._confetti(160); },
+  _confetti(n){
+    const c=document.getElementById("confetti"); const ctx=c.getContext("2d");
+    c.width=innerWidth; c.height=innerHeight;
+    const colors=["#e6b54a","#4f86c6","#3da35d","#fff","#c8902a","#d9534f"];
+    let parts=[];
+    for(let i=0;i<n;i++){
+      parts.push({x:Math.random()*c.width, y:-20-Math.random()*c.height*.3,
+        r:6+Math.random()*8, c:colors[i%colors.length],
+        vy:3+Math.random()*4, vx:-2+Math.random()*4, rot:Math.random()*6, vr:-.2+Math.random()*.4});
+    }
+    let frames=0;
+    const tick=()=>{
+      ctx.clearRect(0,0,c.width,c.height);
+      parts.forEach(p=>{
+        p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr;
+        ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+        ctx.fillStyle=p.c; ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*.6); ctx.restore();
+      });
+      frames++;
+      if(frames<140) requestAnimationFrame(tick);
+      else ctx.clearRect(0,0,c.width,c.height);
+    };
+    tick();
+  }
+};
+
+/* keyboard support for projected play */
+document.addEventListener("keydown",e=>{
+  const missionActive = document.getElementById("screen-mission").classList.contains("active");
+  if(missionActive && Game.current && !Game.current.isSort){
+    if(["1","2","3","4"].includes(e.key)){
+      const idx=parseInt(e.key)-1;
+      if(Game.current.options[idx]) Game.answer(idx);
+    }
+    if(e.key==="Enter" && Game.answered){
+      const nav=document.querySelector("#navrow .btn:last-child"); if(nav) nav.click();
+    }
+  }
+  if(missionActive && Game.current && Game.current.isSort){
+    if(e.key==="ArrowRight"||e.key.toLowerCase()==="y") Game.sortAnswer(true);
+    if(e.key==="ArrowLeft"||e.key.toLowerCase()==="n") Game.sortAnswer(false);
+  }
+  if(document.getElementById("screen-title").classList.contains("active") && e.key==="Enter"){
+    Game.start();
+  }
+});
+window.addEventListener("resize",()=>{
+  const c=document.getElementById("confetti"); c.width=innerWidth; c.height=innerHeight;
+});
+</script>
+</body>
+</html>
